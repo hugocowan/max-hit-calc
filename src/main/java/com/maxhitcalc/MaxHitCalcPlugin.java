@@ -123,7 +123,7 @@ public class MaxHitCalcPlugin extends Plugin
 
 		if (widget.getGroupId() == InterfaceID.LOGIN_CLICK_TO_PLAY_SCREEN)
 		{
-			gameReady = true; // Set as soon as user closes login screen
+			gameReady = true; // Set as soon as user closes welcome screen
 			calculateMaxes();
 		}
 	}
@@ -156,7 +156,15 @@ public class MaxHitCalcPlugin extends Plugin
 	{
 		if(!gameReady)
 		{
-			return; // do nothing, before you can see the game
+			// Fix for potential out-of-order startup problems (logging in without welcome screen)
+			if (client.getGameState() == GameState.LOGGED_IN)
+			{
+				gameReady = true;
+			}
+			else
+			{
+				return; // do nothing, before you can see the game
+			}
 		}
 
 //		System.out.println("Varplayer: " + event.getVarpId());
@@ -186,6 +194,12 @@ public class MaxHitCalcPlugin extends Plugin
 		{
 			calculateMaxes();
 		}
+
+		// On Charge Spell Buff Start/End
+		if(event.getVarpId() == VarPlayer.CHARGE_GOD_SPELL)
+		{
+			calculateMaxes();
+		}
 	}
 
 	// OnStatChanged, waiting for skill changes, boosted or levelled
@@ -204,6 +218,11 @@ public class MaxHitCalcPlugin extends Plugin
 		}
 		// On Magic Changed
 		if(event.getSkill() == Skill.MAGIC)
+		{
+			calculateMaxes();
+		}
+		// On HP Changed
+		if(event.getSkill() == Skill.HITPOINTS)
 		{
 			calculateMaxes();
 		}
